@@ -117,11 +117,20 @@
       <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-body">
-          <div class="row">
-            <div class="col-md-12">
-              <label class="form-label" for="file">Pilih Berkas Excel</label>
-              <input type="file" name="file" class="form-control" required>
+          <div class="mb-3 col-md-12">
+            <label class="form-label" for="template">Template Import Siswa</label>
+            <div class="input-group">
+              <input type="text" class="form-control" value="{{ $siswaImport->file_name ?? 'No file uploaded' }}" readonly>
+              @if($fileUrl)
+              <a href="{{ $fileUrl }}" class="btn btn-outline-primary" type="button" id="button-addon2">Download</a>
+              @else
+              <button class="btn btn-outline-secondary" type="button" disabled>No file</button>
+              @endif
             </div>
+          </div>
+          <div class="col-md-12">
+            <label class="form-label" for="file">Pilih Berkas Excel</label>
+            <input type="file" name="file" class="form-control" required>
           </div>
         </div>
         <div class="modal-footer">

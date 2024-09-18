@@ -9,6 +9,7 @@ use App\Models\Siswa;
 use App\Models\Classroom;
 use App\Models\Jurusan;
 use App\Models\Attendance;
+use App\Models\Upload;
 use App\Models\Keterlambatan;
 use App\Exports\MonthlyRecapExport;
 use Maatwebsite\Excel\Facades\Excel;
@@ -22,11 +23,14 @@ class kelasBinaanController extends Controller {
     // Ambil nama kelas dari kelas yang dibina oleh guru tersebut
     $nama_kelas = $guru->classroom->nama_kelas;
     $siswa = $guru->classroom->siswa; // Ambil siswa dari kelas yang dibina
-    
+    // Ambil template import excel data siswa dari tabel uploads
+    $siswaImport = Upload::where('description', 'like', '%data siswa%')->first();
     if (!$guru || !$guru->classroom) {
       return view('kelas_binaan.index', ['siswa' => [], 'message' => 'Anda tidak memiliki kelas binaan.', 'title' => $title]);
     }
-    return view('kelas_binaan.index', compact('siswa','nama_kelas','classroom', 'title'));
+    // Pastikan file URL bisa diakses
+    $fileUrl = $siswaImport ? asset('storage/' . $siswaImport->file_path) : null;
+    return view('kelas_binaan.index', compact('siswa','nama_kelas','classroom','siswaImport','fileUrl', 'title'));
   }
   
   public function show(Siswa $siswa) {
