@@ -13,7 +13,17 @@ class Siswa extends Model {
 	public static function boot() {
 		parent::boot();
 		static::deleting(function ($siswa) {
+			// Hapus data orang tua
 			$siswa->orang_tua()->delete();
+			// Hapus data keterlambatan
+			$siswa->keterlambatan()->delete();
+			// Hapus data pelanggaran siswa
+			$siswa->pelanggaranSiswa()->each(function($pelanggaran) {
+				$pelanggaran->dataPelanggaran()->detach(); // Hapus pivot table
+				$pelanggaran->delete(); // Hapus pelanggaran siswa
+			});
+			// Hapus data absensi
+			$siswa->attendances()->delete();
 		});
 	}
   public function orang_tua() {
@@ -31,4 +41,12 @@ class Siswa extends Model {
   public function attendances() {
     return $this->hasMany(Attendance::class, 'siswa_id');
   }
+	// Relasi ke keterlambatan
+	public function keterlambatan() {
+		return $this->hasMany(Keterlambatan::class, 'siswa_id');
+	}
+	// Relasi ke pelanggaran siswa
+	public function pelanggaranSiswa() {
+		return $this->hasMany(PelanggaranSiswa::class, 'siswa_id');
+	}
 }
