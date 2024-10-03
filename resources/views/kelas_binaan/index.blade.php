@@ -79,7 +79,7 @@
                           <i class="bx bx-dots-vertical-rounded"></i>
                         </button>
                         <div class="dropdown-menu">
-                          <a class="dropdown-item" href="{{ route('agenda_piket.show', $data->id) }}">
+                          <a class="dropdown-item" href="{{ route('kelas-binaan.show', $data->id) }}">
                             <i class="bx bx-file me-1"></i> Detail
                           </a>
                           <a class="dropdown-item" href="{{ route('kelas-binaan.edit', $data->id) }}">

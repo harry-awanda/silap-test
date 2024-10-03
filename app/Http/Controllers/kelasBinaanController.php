@@ -34,12 +34,12 @@ class kelasBinaanController extends Controller {
   }
   
   public function show(Siswa $siswa) {
-    $title = 'Profile Siswa';
-    $siswa->load('classroom', 'jurusan', 'orang_tua');
-    
-    return view('admin.guru.profilSiswa', compact('title', 'siswa'));
+    $title = 'Profil Siswa';
+    $classrooms = Classroom::all();
+    $jurusan = Jurusan::all();
+    return view('kelas_binaan.show', compact('title','siswa','jurusan', 'classrooms'));
   }
-  
+
   public function edit(Siswa $siswa) {
     $title = 'Edit Data Siswa';
     $classrooms = Classroom::all();
