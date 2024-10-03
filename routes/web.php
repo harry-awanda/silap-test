@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Artisan;
 use App\Http\Controllers\{
     DashboardController,
     AuthController,
@@ -27,6 +28,12 @@ Route::controller(AuthController::class)->group(function() {
   Route::get('auth/login', 'showLoginForm')->name('login')->middleware('guest'); // Perbarui URL
   Route::post('auth/login', 'postLogin')->name('postLogin'); // Gunakan route name untuk post login
   Route::post('logout', 'logout')->name('logout');
+});
+
+// Route to run storage:link
+Route::get('generate-storage-link', function() {
+  Artisan::call('storage:link');
+  echo 'success';
 });
 
 // Routes with common 'auth' middleware
