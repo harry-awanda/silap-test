@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Siswa;
+use App\Imports\SiswaImport;
 use App\Models\Classroom;
 use App\Models\Jurusan;
 use App\Models\Attendance;
@@ -183,7 +184,7 @@ class kelasBinaanController extends Controller {
       // Coba impor file menggunakan kelas SiswaImport
 			Excel::import(new SiswaImport, $request->file('file'));
       // Redirect dengan pesan sukses
-			return redirect()->route('kelas_binaan.index')->with('success', 'Data Siswa Berhasil di import.');
+			return redirect()->route('kelas-binaan.index')->with('success', 'Data Siswa Berhasil di import.');
 			
 		} catch (\Maatwebsite\Excel\Validators\ValidationException $e) {
       // Tangani pengecualian validasi dari impor Excel

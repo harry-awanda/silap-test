@@ -114,7 +114,7 @@
         <h5 class="modal-title" id="importModalTitle">Import Data Siswa</h5>
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
-      <form action="{{ route('siswa.import') }}" method="POST" enctype="multipart/form-data">
+      <form action="{{ route('kelas-binaan.import') }}" method="POST" enctype="multipart/form-data">
         @csrf
         <div class="modal-body">
           <div class="mb-3 col-md-12">

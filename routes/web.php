@@ -71,10 +71,12 @@ Route::middleware(['auth'])->group(function () {
 
       Route::get('uploads/download/{upload}', [UploadController::class, 'download'])->name('uploads.download');
     });
+    
 
     // Guru routes
     Route::middleware('checkRole:guru')->group(function () {
       Route::resource('kelas-binaan', KelasBinaanController::class)->parameters(['kelas-binaan' => 'siswa']); // Mengubah nama parameter rute default
+      Route::post('kelas-binaan/import', [KelasBinaanController::class, 'import'])->name('kelas-binaan.import');
       Route::get('kelas-binaan/{siswa}', [KelasBinaanController::class, 'show'])->name('kelas-binaan.show');
       Route::post('kelas-binaan/updateKelas', [KelasBinaanController::class, 'updateKelas'])->name('kelas-binaan.updateKelas');
       Route::post('kelas-binaan/massDelete', [KelasBinaanController::class, 'massDelete'])->name('kelas-binaan.massDelete');
@@ -108,7 +110,4 @@ Route::middleware(['auth'])->group(function () {
       Route::resource('keterlambatan', KeterlambatanController::class);
       Route::get('search-siswa', [KeterlambatanController::class, 'searchSiswa'])->name('search.siswa');
     });
-    
-    Route::post('siswa/import', [SiswaController::class, 'import'])->name('siswa.import')
-    ->middleware('auth', 'checkRole:admin,guru');
 });

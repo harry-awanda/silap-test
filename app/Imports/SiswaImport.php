@@ -10,23 +10,27 @@ use App\Models\Classroom;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
 use Maatwebsite\Excel\Concerns\WithValidation;
-use PhpOffice\PhpSpreadsheet\Shared\Date;
 
 class SiswaImport implements ToModel, WithHeadingRow, WithValidation {
+  public function headingRow(): int {
+    return 1; // Header dimulai dari baris 1
+  }
 
   public function model(array $row) {
-    // Check if student already exists
-    $existingStudent = Siswa::where('nama_lengkap', $row['nama_lengkap'])
-      ->where('kontak', $row['kontak'])->first();
-
-    if ($existingStudent) {
-      // Optionally log or handle the existing student
+    // Lewati jika field yang diperlukan tidak ada
+    if (empty($row['nis']) || empty($row['nama_lengkap']) || empty($row['jurusan']) || empty($row['classroom'])) {
       return null;
     }
+    // Cek jika siswa sudah ada
+    $existingStudent = Siswa::where('nama_lengkap', $row['nama_lengkap'])
+    ->where('nis', $row['nis'])->first();
 
-    // Inisialisasi variabel $orangtua sebagai null
+    if ($existingStudent) {
+      return null; // Jika siswa sudah ada, lewati
+    }
+
+    // Proses data orang tua
     $orangtua = null;
-    // Jika terdapat data orang tua (nama ayah/ibu atau alamat orang tua), buat atau temukan data orang tua
     if ($row['nama_ayah'] || $row['nama_ibu'] || $row['alamat_orangtua']) {
       $orangtua = OrangTua::firstOrCreate([
         'nama_ayah' => $row['nama_ayah'],
@@ -36,24 +40,19 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation {
         'kontak_ibu' => $row['kontak_ibu'],
       ]);
     }
-
-    // Cari jurusan berdasarkan nama_jurusan, jika tidak ada, buat data baru
+    // Proses data jurusan dan kelas
     $jurusan = Jurusan::firstOrCreate(['nama_jurusan' => $row['jurusan']]);
-
-    // Cari classroom berdasarkan nama_kelas, jika tidak ada, buat data baru
     $classroom = Classroom::firstOrCreate(['nama_kelas' => $row['classroom']]);
-
+    // Kembalikan objek siswa
     return new Siswa([
-      'orang_tua_id' => $orangtua ? $orangtua->id : null, // Set orang_tua_id jika data orang tua ada
-      'jurusan_id' => $jurusan->id, // ID dari jurusan yang sudah ditemukan/dibuat
-      'classroom_id' => $classroom->id, // ID dari kelas yang sudah ditemukan/dibuat
+      'orang_tua_id' => $orangtua ? $orangtua->id : null,
+      'jurusan_id' => $jurusan->id,
+      'classroom_id' => $classroom->id,
       'nis' => $row['nis'],
       'nama_lengkap' => $row['nama_lengkap'],
       'jenis_kelamin' => $row['jenis_kelamin'],
       'tempat_lahir' => $row['tempat_lahir'],
-      'tanggal_lahir' => is_numeric($row['tanggal_lahir']) 
-      ? Carbon::instance(Date::excelToDateTimeObject($row['tanggal_lahir']))->format('Y-m-d') 
-      : Carbon::createFromFormat('d/m/Y', $row['tanggal_lahir'])->format('Y-m-d'),
+      'tanggal_lahir' => $this->formatTanggalLahir($row['tanggal_lahir']),
       'agama' => $row['agama'],
       'alamat' => $row['alamat'],
       'kontak' => $row['kontak'],
@@ -62,9 +61,9 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation {
 
   public function rules(): array {
     return [
-      '*.nis' => ['required'],
+      '*.nis' => ['required'], // Pastikan nis unik
       '*.nama_lengkap' => ['required', 'string'],
-      '*.kontak' => ['required'],
+      '*.kontak' => ['nullable'],
       '*.nama_ayah' => ['nullable', 'string'],
       '*.nama_ibu' => ['nullable', 'string'],
       '*.jurusan' => ['required', 'exists:jurusan,nama_jurusan'],
@@ -78,5 +77,11 @@ class SiswaImport implements ToModel, WithHeadingRow, WithValidation {
       '*.kontak_ibu' => ['nullable'],
       '*.alamat_orangtua' => ['nullable'],
     ];
-  }  
+  }
+
+  private function formatTanggalLahir($tanggalLahir) {
+    return is_numeric($tanggalLahir)
+    ? Carbon::instance(\PhpOffice\PhpSpreadsheet\Shared\Date::excelToDateTimeObject($tanggalLahir))->format('Y-m-d')
+    : Carbon::createFromFormat('d/m/Y', $tanggalLahir)->format('Y-m-d');
+  }
 }
