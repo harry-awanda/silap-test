@@ -62,5 +62,7 @@
 
   <script src="{{asset('assets/vendor/libs/jquery/jquery.js')}}"></script>
   <script src="{{asset('assets/vendor/js/bootstrap.js')}}"></script>
+    <!-- Main JS -->
+  <script src="{{asset('assets/js/main.js')}}"></script>
 </body>
 </html>
