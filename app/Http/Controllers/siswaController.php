@@ -134,7 +134,7 @@ class siswaController extends Controller {
 	public function update(Request $request, Siswa $siswa) {
 		// dd($request->all()); // Menampilkan semua input yang diterima
 		$data = $request->validate([
-			'nis' => 'required|string',
+			'nis' => 'required|string|max:5',
 			'nama_lengkap' => 'required|string',
 			'jurusan_id' => 'required|exists:jurusan,id',
 			'classroom_id' => 'required|exists:classrooms,id',

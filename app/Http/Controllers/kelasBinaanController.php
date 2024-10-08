@@ -34,44 +34,88 @@ class kelasBinaanController extends Controller {
     return view('kelas_binaan.index', compact('siswa','nama_kelas','classroom','siswaImport','fileUrl', 'title'));
   }
   
-  public function show(Siswa $siswa) {
+  public function show($siswa_id){
     $title = 'Profil Siswa';
+    $siswa = Siswa::findOrFail($siswa_id);
     $classrooms = Classroom::all();
     $jurusan = Jurusan::all();
     return view('kelas_binaan.show', compact('title','siswa','jurusan', 'classrooms'));
   }
 
-  public function edit(Siswa $siswa) {
+  public function edit($siswa_id) {
     $title = 'Edit Data Siswa';
+    $siswa = Siswa::findOrFail($siswa_id);
     $classrooms = Classroom::all();
     $jurusan = Jurusan::all();
     return view('kelas_binaan.edit', compact('title','siswa','jurusan', 'classrooms'));
   }
   
-  public function update(Request $request, Siswa $siswa) {
-    // Validasi dan update data siswa sesuai kebutuhan
-    $request->validate([
+  public function update(Request $request, $siswa_id) {
+    // Validasi data yang diterima dari request
+    $data = $request->validate([
+      'nis' => 'required|string|max:5',
       'nama_lengkap' => 'required|string|max:255',
-      'nis' => 'required|string|max:20',
-      'jenis_kelamin' => 'required|in:L,P',
+      'jurusan_id' => 'required|exists:jurusan,id',
       'classroom_id' => 'required|exists:classrooms,id',
+      'jenis_kelamin' => 'nullable|string|in:L,P',
+      'tempat_lahir' => 'nullable|string',
+      'tanggal_lahir' => 'nullable|date',
+      'agama' => 'nullable|string',
+      'alamat' => 'nullable|string',
+      'kontak' => 'nullable|string',
+      'photo' => 'nullable|image',
+      'nama_ayah' => 'nullable|string',
+      'nama_ibu' => 'nullable|string',
+      'kontak_ayah' => 'nullable|string',
+      'kontak_ibu' => 'nullable|string',
+      'alamat_orangtua' => 'nullable|string',
+      'nama_wali_murid' => 'nullable|string',
+      'alamat_wali' => 'nullable|string',
+      'kontak_wali' => 'nullable|string',
     ]);
-    $siswa->update([
-      'nama_lengkap' => $request->nama_lengkap,
-      'nis' => $request->nis,
-      'jenis_kelamin' => $request->jenis_kelamin,
-      'classroom_id' => $request->classroom_id,
-    ]);
-    
+    // Cari siswa berdasarkan ID siswa
+    $siswa = Siswa::findOrFail($siswa_id);
+    // Jika ada upload foto baru, proses penyimpanan file
+    if ($request->hasFile('photo')) {
+      // Hapus foto lama jika ada
+      if ($siswa->photo) {
+        Storage::disk('public')->delete($siswa->photo);
+      }
+      // Simpan foto baru
+      $data['photo'] = $request->file('photo')->store('photos', 'public');
+    }
+    // Perbarui data siswa
+    $siswa->update($data);
+    // Jika ada data orang tua yang diisi, perbarui atau buat data baru orang tua
+    if ($request->filled('nama_ayah') || $request->filled('nama_ibu')) {
+      $orangTua = $siswa->orang_tua()->updateOrCreate(
+        ['id' => $siswa->orang_tua_id],
+        [
+          'nama_ayah' => $data['nama_ayah'],
+          'nama_ibu' => $data['nama_ibu'],
+          'alamat_orangtua' => $data['alamat_orangtua'],
+          'kontak_ayah' => $data['kontak_ayah'],
+          'kontak_ibu' => $data['kontak_ibu'],
+          'nama_wali_murid' => $data['nama_wali_murid'],
+          'alamat_wali' => $data['alamat_wali'],
+          'kontak_wali' => $data['kontak_wali'],
+        ]
+      );
+      // Hubungkan orang tua dengan siswa
+      $siswa->update(['orang_tua_id' => $orangTua->id]);
+    }
+    // Redirect ke halaman index kelas binaan dengan pesan sukses
     return redirect()->route('kelas-binaan.index')->with('success', 'Data siswa berhasil diperbarui.');
   }
 
-  public function destroy(Siswa $siswa) {
+  public function destroy($siswa_id) {
+    $siswa = Siswa::findOrFail($siswa_id);
     $siswa->delete();
     return redirect()->route('kelas-binaan.index')->with('success', 'Data siswa berhasil dihapus.');
   }
 
   public function updateKelas(Request $request) {
+    // dd($request->all());
     // Validasi input
     $request->validate([
       'siswa_ids' => 'required|array',

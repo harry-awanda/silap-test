@@ -75,19 +75,14 @@ Route::middleware(['auth'])->group(function () {
 
     // Guru routes
     Route::middleware('checkRole:guru')->group(function () {
-      Route::resource('kelas-binaan', KelasBinaanController::class)->parameters(['kelas-binaan' => 'siswa']); // Mengubah nama parameter rute default
+      Route::resource('kelas-binaan', KelasBinaanController::class)->parameters(['kelas-binaan' => 'siswa_id']); // Mengubah nama parameter rute default
+      Route::post('updateKelas', [KelasBinaanController::class, 'updateKelas'])->name('updateKelas');
+      Route::post('massDelete', [KelasBinaanController::class, 'massDelete'])->name('massDelete');
       Route::post('kelas-binaan/import', [KelasBinaanController::class, 'import'])->name('kelas-binaan.import');
-      Route::get('kelas-binaan/{siswa}', [KelasBinaanController::class, 'show'])->name('kelas-binaan.show');
-      Route::post('kelas-binaan/updateKelas', [KelasBinaanController::class, 'updateKelas'])->name('kelas-binaan.updateKelas');
-      Route::post('kelas-binaan/massDelete', [KelasBinaanController::class, 'massDelete'])->name('kelas-binaan.massDelete');
       Route::get('rekap-bulanan', [KelasBinaanController::class, 'monthlyRecap'])->name('kelas-binaan.monthlyRecap');
       Route::get('rekap-bulanan/export', [KelasBinaanController::class, 'exportMonthlyRecap'])->name('rekap-bulanan.export');
-      // Route::resource('absensi-keterlambatan', AbsensiKeterlambatanController::class)->only(['index']);
-      // Route untuk absensi
       Route::get('rekap-absensi', [AbsensiKeterlambatanController::class, 'absensi'])->name('absensi');
-      // Route untuk keterlambatan
       Route::get('rekap-keterlambatan', [AbsensiKeterlambatanController::class, 'keterlambatan'])->name('keterlambatan');
-      // Route untuk filter
       Route::post('absensi-keterlambatan/filter', [AbsensiKeterlambatanController::class, 'filter'])->name('absensi-keterlambatan.filter');
     });
 

@@ -12,7 +12,7 @@
     <div class="alert alert-warning">{{ $message }}</div>
   @else
     <div class="card">
-      <form action="{{ route('kelas-binaan.updateKelas') }}" method="POST">
+      <form action="{{ route('updateKelas') }}" method="POST">
         @csrf
         <div class="card-header d-flex justify-content-between align-items-center">
           <!-- Dropdown Pilih Kelas Baru -->
@@ -40,7 +40,7 @@
               </li>
               <li>
                 <button type="submit" class="dropdown-item text-danger"
-                formaction="{{ route('kelas-binaan.massDelete') }}" 
+                formaction="{{ route('massDelete') }}" 
                 onclick="return confirm('Apakah Anda yakin ingin menghapus siswa yang dipilih?')">
                   <i class="bx bx-trash me-1"></i> Hapus Siswa
                 </button>
@@ -85,13 +85,7 @@
                           <a class="dropdown-item" href="{{ route('kelas-binaan.edit', $data->id) }}">
                             <i class="bx bx-edit-alt me-1"></i> Edit
                           </a>
-                          <form action="{{ route('kelas-binaan.destroy', $data->id) }}" method="POST" style="display:inline;">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin menghapus agenda ini?')">
-                              <i class="bx bx-trash me-1"></i> Delete
-                            </button>
-                          </form>
+                          
                         </div>
                       </div>
                     </td>
